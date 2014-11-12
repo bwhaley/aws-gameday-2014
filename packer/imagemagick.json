@@ -1,0 +1,41 @@
+{
+  "variables": {
+    "aws_access_key": "YOURKEY",
+    "aws_secret_key": "YOURSECRET",
+    "ami_type": "t2.micro",
+    "name": "BatchProcessor",
+    "description": "Master for image worker",
+    "region": "ap-northeast-1",
+    "base_ami": "ami-4985b048",
+    "subnet_id": "subnet-9cb04beb",
+    "vpc_id": "vpc-33669a56"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "{{user `region`}}",
+    "source_ami": "{{user `base_ami`}}",
+    "instance_type": "t2.medium",
+    "ssh_username": "ec2-user",
+    "ssh_timeout": "5m",
+    "subnet_id": "{{user `subnet_id`}}",
+    "vpc_id": "{{user `vpc_id`}}",
+    "associate_public_ip_address": true,
+    "ami_virtualization_type": "hvm",
+    "ami_description": "{{user `description`}}",
+    "ami_name": "{{user `name`}}"
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "start_retry_timeout": "10m",
+      "inline": [
+        "sudo yum install -y ImageMagick",
+        "sudo easy_install argparse",
+        "sudo mkdir /home/ec2-user/jobs",
+        "sudo wget -O /home/ec2-user/image_processor.py https://us-west-2-aws-training.s3.amazonaws.com/architecting-lab-3-creating-a-batch-processing-cluster-3.1/static/image_processor.py"
+      ]
+    }
+  ]
+}
